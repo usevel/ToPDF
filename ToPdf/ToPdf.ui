@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
+    <width>736</width>
     <height>633</height>
    </rect>
   </property>
@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>830</width>
-         <height>527</height>
+         <width>716</width>
+         <height>495</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -36,6 +36,24 @@
        </layout>
       </widget>
      </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalButtonsWithPic">
+      <item>
+       <widget class="QPushButton" name="addPicFromDialog">
+        <property name="text">
+         <string>Выбрать фотографии...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clearPic">
+        <property name="text">
+         <string>Убрать фотографии</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalForPath">

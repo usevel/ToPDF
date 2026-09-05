@@ -15,7 +15,20 @@ public:
     ToPdf(QWidget *parent = nullptr);
     ~ToPdf();
 
+public slots:
+    void addPhoto(const QString& path);
+
+signals:
+
+
+protected:
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dragMoveEvent(QDragMoveEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
+
 private:
     Ui::ToPdfClass *ui;
+
+    QString savePath = "";
 };
 
