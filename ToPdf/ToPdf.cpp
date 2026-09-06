@@ -1,4 +1,5 @@
 #include "ToPdf.h"
+#include "PhotoThumbnail.h"
 
 #include <QDragEnterEvent>
 #include <QFileDialog>
@@ -108,48 +109,12 @@ void ToPdf::addPhoto(const QString& path)
     if (pixmap.isNull())
         return;
 
-    QLabel* label = new QLabel(this);
-    label->setPixmap(pixmap.scaled(220, 220, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    label->setFixedSize(220, 220);
-    label->setAlignment(Qt::AlignCenter);
-    label->setProperty("photoPath", path);
-    label->setProperty("rotation", 0);
-
-    QPushButton* rotate = new QPushButton("⭮", label);
-    rotate->setFixedSize(28, 28);
-    rotate->move(6, 6);
-    rotate->raise();
-    rotate->setStyleSheet(R"(
-        QPushButton {
-            font-size: 20px;
-            background-color: rgba(30, 30, 30, 180);
-            color: white;
-            border-radius: 14px;
-            border: none;
-
-        }
-        QPushButton:hover {
-            background-color: rgba(60, 60, 60, 200);
-        }
-    )");
-
-    connect(rotate, &QPushButton::clicked, this, [label]() {
-        int angle = (label->property("rotation").toInt() + 90) % 360;
-        label->setProperty("rotation", angle);
-
-        QString photoPath = label->property("photoPath").toString();
-        QPixmap orig(photoPath);
-
-        QTransform tr;
-        tr.rotate(angle);
-        QPixmap rotated = orig.transformed(tr, Qt::SmoothTransformation);
-
-        label->setPixmap(rotated.scaled(220, 220, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    });
+    auto* thumb = new PhotoThumbnail(path, this);
+    
 
     int col = 3;
     int count = ui->gridForPhoto->count();
-    ui->gridForPhoto->addWidget(label, count / col, count % col);
+    ui->gridForPhoto->addWidget(thumb, count / col, count % col);
 }
 
 QImage ToPdf::extractRotatedImage(QWidget* container)
