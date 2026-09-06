@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include <QPdfWriter>
+
+
 #include "ui_ToPdf.h"
 
 QT_BEGIN_NAMESPACE
@@ -17,6 +20,7 @@ public:
 
 public slots:
     void addPhoto(const QString& path);
+    void createPdf();
 
 signals:
 
