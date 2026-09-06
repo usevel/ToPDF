@@ -6,6 +6,8 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    app.setWindowIcon(QIcon(":/ToPdf/icon.ico"));
+
     QString path = QCoreApplication::applicationDirPath() + "/style.qss";
     QFile style(path);
 
