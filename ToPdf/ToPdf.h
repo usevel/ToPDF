@@ -2,6 +2,9 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QPdfWriter>
+#include <QWidget>
+#include <QImage>
+#include <QSize>
 
 
 #include "ui_ToPdf.h"
@@ -19,8 +22,10 @@ public:
     ~ToPdf();
 
 public slots:
-    void addPhoto(const QString& path);
-    void createPdf();
+    void    addPhoto(const QString& path);
+    QImage  extractRotatedImage(QWidget* container);
+    void    drawImageCentered(QPainter& paint, int x, int y, const QSize& maxSize, const QImage& image);
+    void    createPdf();
 
 signals:
 

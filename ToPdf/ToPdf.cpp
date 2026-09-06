@@ -109,15 +109,76 @@ void ToPdf::addPhoto(const QString& path)
         return;
 
     QLabel* label = new QLabel(this);
-    //label->setStyleSheet("border: 1px solid #4b4b4b;");
     label->setPixmap(pixmap.scaled(220, 220, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     label->setFixedSize(220, 220);
     label->setAlignment(Qt::AlignCenter);
     label->setProperty("photoPath", path);
+    label->setProperty("rotation", 0);
+
+    QPushButton* rotate = new QPushButton("⭮", label);
+    rotate->setFixedSize(28, 28);
+    rotate->move(6, 6);
+    rotate->raise();
+    rotate->setStyleSheet(R"(
+        QPushButton {
+            font-size: 20px;
+            background-color: rgba(30, 30, 30, 180);
+            color: white;
+            border-radius: 14px;
+            border: none;
+
+        }
+        QPushButton:hover {
+            background-color: rgba(60, 60, 60, 200);
+        }
+    )");
+
+    connect(rotate, &QPushButton::clicked, this, [label]() {
+        int angle = (label->property("rotation").toInt() + 90) % 360;
+        label->setProperty("rotation", angle);
+
+        QString photoPath = label->property("photoPath").toString();
+        QPixmap orig(photoPath);
+
+        QTransform tr;
+        tr.rotate(angle);
+        QPixmap rotated = orig.transformed(tr, Qt::SmoothTransformation);
+
+        label->setPixmap(rotated.scaled(220, 220, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    });
 
     int col = 3;
     int count = ui->gridForPhoto->count();
     ui->gridForPhoto->addWidget(label, count / col, count % col);
+}
+
+QImage ToPdf::extractRotatedImage(QWidget* container)
+{
+    QLabel* label = qobject_cast<QLabel*>(container);
+    if (!label)
+        return QImage();
+
+    QString originalPath = label->property("photoPath").toString();
+    int rotation         = label->property("rotation").toInt();
+
+    QImage image(originalPath);
+    if (image.isNull() || rotation == 0)
+        return image;
+
+    QTransform tr;
+    tr.rotate(rotation);
+
+    return image.transformed(tr, Qt::SmoothTransformation);
+}
+
+void ToPdf::drawImageCentered(QPainter& paint, int x, int y, const QSize& maxSize, const QImage& image)
+{
+    QSize scaledSize = image.size().scaled(maxSize, Qt::KeepAspectRatio);
+
+    int drawX = x + (maxSize.width()  - scaledSize.width()) / 2;
+    int drawY = y + (maxSize.height() - scaledSize.height()) / 2;
+
+    paint.drawImage(QRect(drawX, drawY, scaledSize.width(), scaledSize.height()), image);
 }
 
 void ToPdf::createPdf()
@@ -140,42 +201,31 @@ void ToPdf::createPdf()
         return;
     }
 
-    int maxWidth = 2000;
+    int maxWidth  = 2000;
+    int maxHeight = 1500;
     int x = (pdf.width() - maxWidth) / 2;
     int y = 100;
 
-    QLayoutItem* item;
-    while ((item = ui->gridForPhoto->takeAt(0)) != nullptr)
+    for (int i = 0; i < ui->gridForPhoto->count(); ++i)
     {
+        QLayoutItem* item = ui->gridForPhoto->itemAt(i);
         QWidget* wid = item->widget();
-        if (wid)
+
+        if (!wid)
+            continue;
+
+        QImage image = extractRotatedImage(wid);
+        if (image.isNull())
+            continue;
+
+        drawImageCentered(paint, x, y, QSize(maxWidth, maxHeight), image);
+        y += maxHeight + 200;
+
+        if (y > pdf.height() - maxHeight)
         {
-            QString originalPath = wid->property("photoPath").toString();
-            QImage image(originalPath);
-            if (!image.isNull())
-            {
-                QSize imageSize = image.size();
-                QSize maxSize(2000, 1500);
-
-                QSize scaledSize = imageSize.scaled(maxSize, Qt::KeepAspectRatio);
-
-                int drawX = x + (maxSize.width()  - scaledSize.width()) / 2;
-                int drawY = y + (maxSize.height() - scaledSize.height()) / 2;
-
-                paint.drawImage(QRect(drawX, drawY, scaledSize.width(), scaledSize.height()), image);
-                y += maxSize.height() + 200;
-
-                if (y > pdf.height() - maxSize.height())
-                {
-                    pdf.newPage();
-                    y = 100;
-                }
-            }
-
-            delete wid;
+            pdf.newPage();
+            y = 100;
         }
-
-        delete item;
     }
 
     paint.end();
