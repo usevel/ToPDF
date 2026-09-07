@@ -41,6 +41,28 @@ PhotoThumbnail::PhotoThumbnail(const QString& path, QWidget* parent)
         setProperty("rotation", angle);
         refreshPixmap();
     });
+
+    close = new QPushButton("×", this);
+    close->setFixedSize(28, 28);
+    close->move(ThumbSize - 28 - 6, 6);
+    close->raise();
+    close->setStyleSheet(R"(
+        QPushButton {
+            font-size: 20px;
+            background-color: rgba(30, 30, 30, 180);
+            color: white;
+            border-radius: 14px;
+            border: none;
+
+        }
+        QPushButton:hover {
+            background-color: rgba(60, 60, 60, 200);
+        }
+    )");
+
+    connect(close, &QPushButton::clicked, this, [this]() {
+        emit removeRequested(this);
+    });
 }
 
 void PhotoThumbnail::refreshPixmap()

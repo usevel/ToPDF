@@ -1,5 +1,4 @@
 #include "ToPdf.h"
-#include "PhotoThumbnail.h"
 
 #include <QDragEnterEvent>
 #include <QFileDialog>
@@ -27,6 +26,7 @@ ToPdf::ToPdf(QWidget *parent)
     ui->scrollArea->setFixedWidth(710);
     ui->scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->verticalLayout->setAlignment(ui->scrollArea, Qt::AlignHCenter);
+    ui->gridForPhoto->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     connect(ui->scrollArea->verticalScrollBar(), &QScrollBar::rangeChanged,
         this, [this](int min, int max) {
@@ -110,11 +110,30 @@ void ToPdf::addPhoto(const QString& path)
         return;
 
     auto* thumb = new PhotoThumbnail(path, this);
-    
+    connect(thumb, &PhotoThumbnail::removeRequested, this, &ToPdf::removeThumbnail);
 
     int col = 3;
     int count = ui->gridForPhoto->count();
     ui->gridForPhoto->addWidget(thumb, count / col, count % col);
+}
+
+void ToPdf::removeThumbnail(PhotoThumbnail* thumb)
+{
+    ui->gridForPhoto->removeWidget(thumb);
+    thumb->deleteLater();
+    reflowGrid();
+}
+
+void ToPdf::reflowGrid()
+{
+    QList<QLayoutItem*> items;
+    QLayoutItem* item;
+    while ((item = ui->gridForPhoto->takeAt(0)))
+        items.append(item);
+
+    int col = 3;
+    for (int i = 0; i < items.size(); i++)
+        ui->gridForPhoto->addItem(items[i], i / col, i % col);
 }
 
 QImage ToPdf::extractRotatedImage(QWidget* container)
@@ -186,7 +205,7 @@ void ToPdf::createPdf()
         drawImageCentered(paint, x, y, QSize(maxWidth, maxHeight), image);
         y += maxHeight + 200;
 
-        if (y > pdf.height() - maxHeight)
+        if (ui->gridForPhoto->itemAt(i + 1) && y > pdf.height() - maxHeight)
         {
             pdf.newPage();
             y = 100;

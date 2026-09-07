@@ -6,6 +6,7 @@
 #include <QImage>
 #include <QSize>
 
+#include "PhotoThumbnail.h"
 
 #include "ui_ToPdf.h"
 
@@ -22,10 +23,11 @@ public:
     ~ToPdf();
 
     void    addPhoto(const QString& path);
+    void    removeThumbnail(PhotoThumbnail* thumb);
+    void    reflowGrid();
     QImage  extractRotatedImage(QWidget* container);
     void    drawImageCentered(QPainter& paint, int x, int y, const QSize& maxSize, const QImage& image);
     void    createPdf();
-
 
 
 protected:
