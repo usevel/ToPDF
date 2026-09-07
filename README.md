@@ -39,7 +39,7 @@ Drop in your images, reorder and rotate them right on the thumbnail grid, pick a
 
 ## 🛠️ Tech Stack
 
-* **Language:** C++20
+* **Language:** C++23
 * **GUI:** Qt 6 Widgets (`QMainWindow`, `QGridLayout`, `QScrollArea`, custom `QLabel` subclass)
 * **PDF Generation:** `QPdfWriter`, `QPainter`
 * **Drag & Drop:** `QDrag`, `QMimeData`, custom MIME type for internal reordering
@@ -50,7 +50,7 @@ Drop in your images, reorder and rotate them right on the thumbnail grid, pick a
 ## 🚀 How to Build & Run
 
 ### Prerequisites
-* C++22 compatible compiler
+* C++23 compatible compiler
 * Qt 6.11.2 (Qt Widgets module) with Qt VS Tools
 
 ### Building from Source
